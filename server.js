@@ -12,7 +12,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const app = express();
 
 const PORT = process.env.PORT || 10000;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5500";
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "http://localhost:3000";
 
 const PRICE_IDS = {
   sensation: process.env.SENSATION_PRICE_ID,
@@ -23,10 +24,12 @@ const PRICE_IDS = {
   "velvet riot": process.env.VELVET_RIOT_PRICE_ID,
 };
 
-app.use(cors({
-  origin: FRONTEND_URL,
-  methods: ["GET", "POST"],
-}));
+app.use(
+  cors({
+    origin: FRONTEND_URL,
+    methods: ["GET", "POST"],
+  })
+);
 
 app.use(express.json());
 
