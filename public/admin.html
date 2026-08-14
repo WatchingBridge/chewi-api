@@ -73,29 +73,115 @@ textarea{min-height:96px;resize:vertical}.password-wrap{position:relative}.passw
 </style>
 
 <style>
-#loginView.login{min-height:100vh;display:grid;place-items:center;padding:24px;background:#f5efe5}
-#loginView .login-card{width:min(380px,100%);padding:32px;border:1px solid #d8ccbe;border-radius:18px;background:#fffaf2;box-shadow:0 18px 50px rgba(40,24,16,.08)}
-#loginView .login-brand,#loginView .login-copy,#loginView .login-side,#loginView .login-eyebrow,#loginView .security-note,#loginView .login-features,#loginView .login-meta{display:none!important}
-#loginView h1{margin:0 0 6px;font-size:30px;letter-spacing:-.05em}
-#loginView .login-subtitle{margin:0 0 24px;color:#75685f;font-size:13px}
-#loginView label{margin:14px 0}
-#loginView .btn[type="submit"]{width:100%;margin-top:8px;justify-content:center}
-#loginView .password-wrap{position:relative}
-#loginView .password-wrap input{padding-right:64px}
-#loginView .password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#75685f;font-size:12px;font-weight:800;cursor:pointer}
+/* Centered Chewi admin login */
+#loginView.login{
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:28px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(184,201,119,.14), transparent 28%),
+    #f5efe5;
+}
+#loginView .login-shell,
+#loginView .login-layout,
+#loginView .login-grid{
+  display:block!important;
+  width:min(420px,100%)!important;
+  max-width:420px!important;
+  margin:0!important;
+  padding:0!important;
+}
+#loginView .login-side,
+#loginView .login-aside,
+#loginView .login-brand-panel,
+#loginView .login-copy,
+#loginView .login-features,
+#loginView .security-list,
+#loginView .security-note,
+#loginView .login-meta,
+#loginView .login-badges{
+  display:none!important;
+}
+#loginView .login-card{
+  width:min(420px,100%);
+  max-width:420px;
+  margin:0 auto;
+  padding:34px;
+  border:1px solid #d8ccbe;
+  border-radius:20px;
+  background:#fffaf2;
+  box-shadow:0 22px 60px rgba(40,24,16,.10);
+}
+#loginView .login-card::before,
+#loginView .login-card::after{
+  display:none!important;
+}
+#loginView .login-card h1{
+  margin:0 0 7px;
+  font-size:34px;
+  line-height:1;
+  letter-spacing:-.055em;
+}
+#loginView .login-card p{
+  margin:0 0 24px;
+}
+#loginView label{
+  margin:14px 0;
+}
+#loginView .login-card .btn[type="submit"],
+#loginView #loginSubmit{
+  width:100%;
+  justify-content:center;
+  margin-top:8px;
+}
+#loginView .password-wrap{
+  position:relative;
+}
+#loginView .password-wrap input{
+  padding-right:66px;
+}
+#loginView .password-toggle{
+  position:absolute;
+  top:50%;
+  right:9px;
+  transform:translateY(-50%);
+  border:0;
+  background:transparent;
+  color:#75685f;
+  padding:6px 8px;
+  font-size:11px;
+  font-weight:800;
+}
+@media(max-width:520px){
+  #loginView.login{padding:16px}
+  #loginView .login-card{padding:26px 20px;border-radius:17px}
+}
 </style>
 
 </head>
 <body>
 <section id="loginView" class="login">
-<form id="loginForm" class="login-card">
-<h1>Chewi Admin</h1>
-<p class="login-subtitle">Sign in to manage your store.</p>
-<label>Username<input id="username" autocomplete="username" required autofocus></label>
-<label>Password<div class="password-wrap"><input id="password" type="password" autocomplete="current-password" required><button id="passwordToggle" class="password-toggle" type="button">Show</button></div></label>
-<button id="loginSubmit" class="btn dark" type="submit">Sign in</button>
-<p id="loginError" class="error" role="alert"></p>
-</form>
+  <form id="loginForm" class="login-card">
+    <h1>Chewi Admin</h1>
+    <p class="muted">Sign in to manage the store.</p>
+
+    <label>
+      Username
+      <input id="username" autocomplete="username" required autofocus>
+    </label>
+
+    <label>
+      Password
+      <div class="password-wrap">
+        <input id="password" type="password" autocomplete="current-password" required>
+        <button id="passwordToggle" class="password-toggle" type="button" aria-label="Show password">Show</button>
+      </div>
+    </label>
+
+    <button id="loginSubmit" class="btn dark" type="submit">Sign in</button>
+    <p id="loginError" class="error" role="alert"></p>
+  </form>
 </section>
 <div id="appView" class="shell hidden">
   <header class="topbar">
@@ -242,8 +328,21 @@ $('#refreshBtn').addEventListener('click',refreshAll);
 async function refreshAll(){try{$('#refreshBtn').disabled=true;await Promise.all([loadDashboard(),loadOrders(),loadCoupons()]);$('#lastUpdated').textContent=`updated ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`}catch(err){toast(err.message)}finally{$('#refreshBtn').disabled=false}}
 boot();
 </script>
+
 <script>
-document.addEventListener('DOMContentLoaded',()=>{const t=document.getElementById('passwordToggle'),p=document.getElementById('password');if(t&&p)t.addEventListener('click',()=>{const s=p.type==='text';p.type=s?'password':'text';t.textContent=s?'Show':'Hide'})});
+document.addEventListener('DOMContentLoaded', () => {
+  const toggle = document.getElementById('passwordToggle');
+  const password = document.getElementById('password');
+  if (toggle && password) {
+    toggle.addEventListener('click', () => {
+      const visible = password.type === 'text';
+      password.type = visible ? 'password' : 'text';
+      toggle.textContent = visible ? 'Show' : 'Hide';
+      toggle.setAttribute('aria-label', visible ? 'Show password' : 'Hide password');
+    });
+  }
+});
 </script>
+
 </body>
 </html>
