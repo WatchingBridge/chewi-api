@@ -52,7 +52,7 @@ const ALLOWED_ORDER_STATUSES = new Set([
 const APP_DB_PATH =
   process.env.APP_DB_PATH ||
   process.env.REVIEW_DB_PATH ||
-  path.join(__dirname, "crunchi.db");
+  path.join(__dirname, "chewi.db");
 
 const db = new Database(APP_DB_PATH);
 db.pragma("journal_mode = WAL");
@@ -179,7 +179,7 @@ function verifySession(token) {
 
 function setAdminCookie(res, token) {
   const parts = [
-    `crunchi_admin=${encodeURIComponent(token)}`,
+    `chewi_admin=${encodeURIComponent(token)}`,
     "HttpOnly",
     "SameSite=Strict",
     "Path=/",
@@ -191,7 +191,7 @@ function setAdminCookie(res, token) {
 
 function clearAdminCookie(res) {
   const parts = [
-    "crunchi_admin=",
+    "chewi_admin=",
     "HttpOnly",
     "SameSite=Strict",
     "Path=/",
@@ -202,7 +202,7 @@ function clearAdminCookie(res) {
 }
 
 function requireAdmin(req, res, next) {
-  const token = parseCookies(req).crunchi_admin;
+  const token = parseCookies(req).chewi_admin;
   const session = verifySession(token);
   if (!session || session.role !== "admin") {
     return res.status(401).json({ error: "Authentication required." });
@@ -381,17 +381,41 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async
 
 /* -------------------- NORMAL MIDDLEWARE -------------------- */
 
+const ALLOWED_ORIGINS = new Set([
+  FRONTEND_URL,
+  "https://arcelus.eu",
+  "https://www.arcelus.eu",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+].filter(Boolean));
+
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || origin === FRONTEND_URL) return callback(null, true);
+      if (!origin || ALLOWED_ORIGINS.has(origin)) {
+        return callback(null, true);
+      }
+
+      console.warn("Blocked CORS origin:", origin);
       return callback(new Error("Not allowed by CORS"));
     },
-    methods: ["GET", "POST", "PATCH", "DELETE"],
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "X-CSRF-Token"],
     credentials: true,
   })
 );
+
+app.options(/.*/, cors({
+  origin(origin, callback) {
+    if (!origin || ALLOWED_ORIGINS.has(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "X-CSRF-Token"],
+  credentials: true,
+}));
 
 app.use(express.json({ limit: "50kb" }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -561,7 +585,7 @@ async function createCheckout(req, res) {
       success_url: `${FRONTEND_URL}?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${FRONTEND_URL}?checkout=cancelled#shop`,
       metadata: {
-        brand: "crunchi",
+        brand: "chewi",
         delivery_market: "malta",
         order_id: String(orderId),
         order_number: number,
@@ -715,7 +739,7 @@ app.get("/api/admin/orders.csv", requireAdmin, (req, res) => {
     ].map(esc).join(",")),
   ];
   res.setHeader("Content-Type", "text/csv; charset=utf-8");
-  res.setHeader("Content-Disposition", `attachment; filename="crunchi-orders.csv"`);
+  res.setHeader("Content-Disposition", `attachment; filename="chewi-orders.csv"`);
   res.send(lines.join("\n"));
 });
 
@@ -787,7 +811,7 @@ app.use((error, _req, res, _next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Crunchi API running on port ${PORT}`);
+  console.log(`CHEWI API running on port ${PORT}`);
   console.log(`Database: ${APP_DB_PATH}`);
   console.log(`Admin: /admin`);
 });
