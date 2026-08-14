@@ -15,11 +15,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const app = express();
 
 const PORT = process.env.PORT || 10000;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://arcelus.eu";
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
-const SESSION_SECRET = process.env.SESSION_SECRET || "";
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "lukas123";
+const SESSION_SECRET = process.env.SESSION_SECRET || "0bb033f6ce82ee591b99c0557385681a4f427d6649ec92e4b6a35f4c736705c9dc18d5c80484bec9e5546d5e2e76f16b24c35e1bbe82a4e59d31ee79e7caea6a";
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "whsec_OJrtlyTvLX2Y6lm0BiAhmrm9XBYkw1G4";
 const COOKIE_SECURE = process.env.NODE_ENV === "production";
 const SESSION_TTL_SECONDS = 60 * 60 * 8;
 
