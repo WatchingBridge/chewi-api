@@ -1,35 +1,244 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Crunchi Admin</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#17120f">
+<title>Chewi Admin</title>
 <style>
-:root{--bg:#f5efe5;--surface:#fffaf2;--ink:#17120f;--muted:#75685f;--line:#d8ccbe;--lime:#b8c977;--red:#9d3f35;--green:#556b37}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,system-ui,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}.login{min-height:100vh;display:grid;place-items:center;padding:24px}.login-card{width:min(420px,100%);padding:28px;border:1px solid var(--line);border-radius:22px;background:var(--surface);box-shadow:0 24px 70px rgba(40,24,16,.12)}h1,h2,h3,p{margin-top:0}h1{font-size:38px;letter-spacing:-.06em;margin-bottom:8px}h2{font-size:25px;letter-spacing:-.04em}label{display:grid;gap:6px;margin:12px 0;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}input,select,textarea{width:100%;border:1px solid #cdbfb2;border-radius:10px;background:white;padding:10px 11px;color:var(--ink)}textarea{min-height:90px;resize:vertical}.btn{border:1px solid var(--ink);border-radius:999px;background:transparent;padding:10px 15px;font-weight:800}.btn.dark{background:var(--ink);color:white}.btn.lime{background:var(--lime)}.btn.danger{border-color:#c88b84;color:var(--red)}.error{color:var(--red);font-size:12px}.shell{min-height:100vh}.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 22px;border-bottom:1px solid var(--line);background:rgba(245,239,229,.95);backdrop-filter:blur(18px)}.brand{font-size:25px;font-weight:900;letter-spacing:-.06em}.top-actions{display:flex;gap:8px;align-items:center}.layout{display:grid;grid-template-columns:210px minmax(0,1fr)}.side{position:sticky;top:61px;height:calc(100vh - 61px);padding:18px;border-right:1px solid var(--line);background:#eee4d8}.side button{display:block;width:100%;padding:10px 12px;margin-bottom:6px;border:0;border-radius:10px;background:transparent;text-align:left;font-weight:800}.side button.active,.side button:hover{background:var(--surface)}.main{padding:24px}.metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:16px 0 24px}.metric{padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}.metric b{display:block;font-size:23px;letter-spacing:-.04em}.metric span{font-size:10px;color:var(--muted);text-transform:uppercase}.panel{padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--surface);margin-bottom:18px}.panel-head{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:14px}.filters{display:flex;gap:8px;flex-wrap:wrap}.filters input{width:230px}.orders{display:grid;gap:9px}.order{border:1px solid var(--line);border-radius:12px;background:white;overflow:hidden}.order-summary{display:grid;grid-template-columns:1.2fr 1fr .8fr .8fr auto;gap:10px;align-items:center;padding:13px}.order-summary b{display:block}.muted{color:var(--muted);font-size:11px}.status{display:inline-block;padding:4px 7px;border-radius:999px;background:#eee4d8;font-size:10px;font-weight:800}.order-details{padding:0 13px 13px;border-top:1px solid #eee4d8}.items{display:grid;gap:4px;margin:12px 0}.row{display:flex;justify-content:space-between;gap:12px}.order-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.order-actions select{width:auto}.coupon-grid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:16px}.coupon-list{display:grid;gap:8px}.coupon{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:11px;background:white}.good{color:var(--green)}@media(max-width:1000px){.metrics{grid-template-columns:repeat(3,1fr)}.coupon-grid{grid-template-columns:1fr}.order-summary{grid-template-columns:1fr 1fr}.layout{grid-template-columns:1fr}.side{position:static;height:auto;display:flex;gap:6px;overflow:auto;border-right:0;border-bottom:1px solid var(--line)}.side button{width:auto;white-space:nowrap}.main{padding:16px}}@media(max-width:600px){.metrics{grid-template-columns:1fr 1fr}.order-summary{grid-template-columns:1fr}.topbar{padding:12px}.filters input{width:100%}}
+:root{
+  --bg:#f4eee5;--surface:#fffaf3;--surface-2:#eee4d8;--ink:#17120f;--muted:#75685f;
+  --line:#d8ccbe;--line-strong:#c6b7a8;--lime:#b8c977;--lime-dark:#718044;
+  --red:#9d3f35;--red-bg:#f7e7e4;--green:#556b37;--green-bg:#eaf0d8;
+  --amber:#8a6427;--amber-bg:#f5ead1;--blue:#49677b;--blue-bg:#e5edf1;
+  --shadow:0 18px 55px rgba(45,27,18,.09);--radius:18px;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit}button,a{tap-highlight-color:transparent}.hidden{display:none!important}
+a{color:inherit;text-decoration:none}button{cursor:pointer}button:disabled{cursor:wait;opacity:.65}
+:focus-visible{outline:3px solid rgba(158,174,98,.55);outline-offset:2px}
+h1,h2,h3,p{margin-top:0}h2{margin-bottom:4px;font-size:28px;letter-spacing:-.045em}h3{margin-bottom:0;font-size:15px;letter-spacing:-.02em}
+.muted{color:var(--muted);font-size:11px}.eyebrow{font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:#8d7d70}
+
+/* login */
+.login{min-height:100vh;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(420px,.92fr);background:#17120f}
+.login-brand{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(32px,5vw,76px);color:#fff8ef;background:radial-gradient(circle at 80% 20%,rgba(184,201,119,.18),transparent 26%),linear-gradient(145deg,#17120f,#2d1713 72%)}
+.login-brand:after{content:"";position:absolute;width:420px;height:420px;right:-120px;bottom:-150px;border:1px solid rgba(255,255,255,.08);border-radius:50%;box-shadow:0 0 0 70px rgba(255,255,255,.025),0 0 0 140px rgba(255,255,255,.018)}
+.login-logo{position:relative;z-index:1;font-size:38px;font-weight:950;letter-spacing:-.08em;text-transform:lowercase}
+.login-message{position:relative;z-index:1;max-width:640px}.login-message h1{max-width:650px;margin:12px 0 18px;font-size:clamp(54px,7vw,96px);line-height:.87;letter-spacing:-.075em;text-transform:lowercase}.login-message p{max-width:520px;color:#c9bbb0;font-size:14px;line-height:1.7}
+.login-security{position:relative;z-index:1;display:flex;gap:8px;flex-wrap:wrap}.security-pill{padding:7px 10px;border:1px solid rgba(255,255,255,.13);border-radius:999px;color:#cfc2b7;font-size:9px;font-weight:800;text-transform:lowercase}
+.login-side{display:grid;place-items:center;padding:32px;background:var(--bg)}
+.login-card{width:min(440px,100%);padding:34px;border:1px solid var(--line);border-radius:24px;background:var(--surface);box-shadow:var(--shadow)}
+.login-card-head{margin-bottom:22px}.login-card h2{font-size:34px}.login-card .muted{font-size:12px;line-height:1.6}
+label{display:grid;gap:6px;margin:13px 0;font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.055em;color:#594c43}
+input,select,textarea{width:100%;border:1px solid var(--line-strong);border-radius:11px;background:#fff;padding:11px 12px;color:var(--ink);transition:border-color .15s ease,box-shadow .15s ease}
+input:focus,select:focus,textarea:focus{border-color:#9eae62;box-shadow:0 0 0 3px rgba(184,201,119,.18);outline:0}
+textarea{min-height:96px;resize:vertical}.password-wrap{position:relative}.password-wrap input{padding-right:72px}.password-toggle{position:absolute;right:7px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--muted);font-size:10px;font-weight:850;text-transform:lowercase;padding:7px}
+.login-submit{width:100%;margin-top:8px}.login-help{margin:16px 0 0;text-align:center;color:#95867a;font-size:9.5px}.error{min-height:18px;margin:10px 0 0;color:var(--red);font-size:11px;text-align:center}
+
+/* buttons */
+.btn{min-height:39px;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--ink);border-radius:999px;background:transparent;color:var(--ink);padding:0 14px;font-size:10.5px;font-weight:850;text-transform:lowercase;transition:transform .15s ease,background .15s ease}
+.btn:hover{transform:translateY(-1px)}.btn.dark{background:var(--ink);color:white}.btn.dark:hover{background:#322721}.btn.lime{background:var(--lime);border-color:#9eae62}.btn.danger{border-color:#c88b84;color:var(--red)}.btn.subtle{border-color:var(--line);background:var(--surface)}
+.icon-btn{width:39px;padding:0}
+
+/* app shell */
+.shell{min-height:100vh}.topbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:68px;padding:12px 22px;border-bottom:1px solid var(--line);background:rgba(244,238,229,.94);backdrop-filter:blur(18px)}
+.brand-wrap{display:flex;align-items:center;gap:13px}.brand{font-size:26px;font-weight:950;letter-spacing:-.07em;text-transform:lowercase}.admin-badge{padding:4px 7px;border-radius:999px;background:var(--ink);color:white;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.top-actions{display:flex;gap:7px;align-items:center}.last-updated{margin-right:5px;color:#94857a;font-size:9px;white-space:nowrap}
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr)}.side{position:sticky;top:68px;height:calc(100vh - 68px);padding:22px 16px;border-right:1px solid var(--line);background:#ece2d6}.side-section{margin-bottom:22px}.side-label{display:block;margin:0 10px 8px;color:#9b8b7e;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.side button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:42px;padding:0 12px;margin-bottom:5px;border:1px solid transparent;border-radius:11px;background:transparent;text-align:left;font-size:11px;font-weight:800;color:#5e5148}.side button.active,.side button:hover{border-color:#d8ccbe;background:var(--surface);color:var(--ink);box-shadow:0 5px 16px rgba(45,27,18,.04)}.side-dot{width:7px;height:7px;border-radius:50%;background:#c4b6a8}.side button.active .side-dot{background:var(--lime-dark)}
+.side-note{margin:24px 8px 0;padding:12px;border:1px solid #d6c8ba;border-radius:12px;background:rgba(255,250,243,.42);color:#83756a;font-size:9.5px;line-height:1.55}.side-note b{display:block;margin-bottom:3px;color:#564941}
+.main{min-width:0;padding:30px clamp(18px,3vw,40px) 50px}.page-head{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin-bottom:20px}.page-head p{margin:4px 0 0}.page-head-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* dashboard */
+.metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:0 0 18px}.metric{position:relative;min-height:112px;padding:16px;border:1px solid var(--line);border-radius:15px;background:var(--surface);overflow:hidden}.metric:after{content:"";position:absolute;right:-18px;bottom:-26px;width:72px;height:72px;border:1px solid rgba(116,96,80,.08);border-radius:50%}.metric b{display:block;margin-top:12px;font-size:25px;line-height:1;letter-spacing:-.05em}.metric span{display:block;font-size:8.5px;font-weight:850;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.metric small{display:block;margin-top:6px;color:#9a8b80;font-size:8.5px}
+.dashboard-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:16px}.stack{display:grid;gap:16px}.panel{padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:0 8px 24px rgba(45,27,18,.035)}.panel-head{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:14px}.panel-head p{margin:3px 0 0}.panel-link{border:0;background:transparent;color:#6e6258;font-size:9px;font-weight:850;text-decoration:underline;text-underline-offset:3px}
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.status-card{padding:13px;border:1px solid #e0d5ca;border-radius:12px;background:#fff}.status-card b{display:block;font-size:20px;letter-spacing:-.04em}.status-card span{color:var(--muted);font-size:9px;text-transform:lowercase}.progress{height:6px;margin-top:10px;border-radius:999px;background:#eee5dc;overflow:hidden}.progress span{display:block;height:100%;border-radius:999px;background:var(--lime-dark)}
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.quick-action{padding:13px;border:1px solid var(--line);border-radius:12px;background:white;text-align:left}.quick-action b{display:block;margin-bottom:3px;font-size:11px}.quick-action span{color:var(--muted);font-size:9px;line-height:1.4}.quick-action:hover{border-color:#ad9d8d;background:#fffdf8}
+.insight-list{display:grid;gap:0}.insight{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid #eee5dc}.insight:last-child{border-bottom:0}.insight b{font-size:11px}.insight span{font-size:10px;color:var(--muted)}
+
+/* orders */
+.filters{display:grid;grid-template-columns:minmax(220px,1fr) 190px auto;gap:8px}.orders{display:grid;gap:9px}.order{border:1px solid var(--line);border-radius:13px;background:white;overflow:hidden}.order:hover{border-color:#c5b5a5}.order-summary{display:grid;grid-template-columns:1.12fr 1.05fr .76fr .76fr auto;gap:12px;align-items:center;padding:14px}.order-summary b{display:block}.order-date{display:block;margin-top:2px;color:#94857a;font-size:9px}.status{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#eee4d8;font-size:9px;font-weight:850;text-transform:lowercase}.status:before{content:"";width:5px;height:5px;border-radius:50%;background:#8d7e72}.status-paid,.status-fulfilled{background:var(--green-bg);color:var(--green)}.status-paid:before,.status-fulfilled:before{background:var(--green)}.status-processing{background:var(--blue-bg);color:var(--blue)}.status-processing:before{background:var(--blue)}.status-pending_payment{background:var(--amber-bg);color:var(--amber)}.status-pending_payment:before{background:var(--amber)}.status-cancelled,.status-refunded{background:var(--red-bg);color:var(--red)}.status-cancelled:before,.status-refunded:before{background:var(--red)}
+.order-details{padding:14px;border-top:1px solid #eee4d8;background:#fffcf7}.details-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.items{display:grid;gap:6px;margin:0 0 12px}.row{display:flex;justify-content:space-between;gap:12px}.totals{margin-top:10px;padding-top:10px;border-top:1px solid #e7ddd3}.customer-meta{display:grid;gap:7px}.meta-line{display:grid;grid-template-columns:90px 1fr;gap:8px;font-size:10px}.meta-line b{color:#6c5f56;text-transform:lowercase}.meta-line span{color:#75685f;overflow-wrap:anywhere}.order-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.order-actions select{width:auto;min-width:150px}.empty-state{padding:34px 20px;text-align:center;border:1px dashed #d1c4b7;border-radius:14px;color:#85776c;background:rgba(255,250,243,.55)}
+
+/* coupons */
+.coupon-grid{display:grid;grid-template-columns:380px minmax(0,1fr);gap:16px}.coupon-list{display:grid;gap:8px}.coupon{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:13px;border:1px solid var(--line);border-radius:12px;background:white}.coupon-code{display:flex;gap:8px;align-items:center}.coupon-code b{font-size:13px;letter-spacing:.03em}.coupon-state{padding:3px 6px;border-radius:999px;background:var(--green-bg);color:var(--green);font-size:8px;font-weight:900;text-transform:uppercase}.coupon-state.off{background:#eee5dc;color:#897a70}.coupon-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.form-help{margin:-5px 0 8px;color:#998a7e;font-size:8.5px;text-transform:none;letter-spacing:0;font-weight:500}.success{color:var(--green)}
+
+.toast{position:fixed;left:50%;bottom:20px;z-index:50;max-width:calc(100% - 30px);transform:translate(-50%,12px);opacity:0;pointer-events:none;padding:10px 15px;border-radius:999px;background:var(--ink);color:white;font-size:10px;font-weight:800;box-shadow:0 12px 36px rgba(20,12,8,.2);transition:.18s ease}.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media(max-width:1180px){.metrics{grid-template-columns:repeat(3,1fr)}.dashboard-grid{grid-template-columns:1fr}.coupon-grid{grid-template-columns:340px minmax(0,1fr)}.order-summary{grid-template-columns:1fr 1fr .7fr auto}.order-summary .order-total{display:none}}
+@media(max-width:900px){.login{grid-template-columns:1fr}.login-brand{display:none}.layout{grid-template-columns:1fr}.side{position:static;height:auto;display:flex;gap:6px;overflow:auto;padding:10px 14px;border-right:0;border-bottom:1px solid var(--line)}.side-section{display:flex;gap:6px;margin:0}.side-label,.side-note{display:none}.side button{width:auto;white-space:nowrap;margin:0}.coupon-grid{grid-template-columns:1fr}.details-grid{grid-template-columns:1fr}.topbar{position:static}.main{padding-top:22px}}
+@media(max-width:650px){.login-side{padding:16px}.login-card{padding:25px}.topbar{padding:11px 12px}.admin-badge,.last-updated,.top-actions .store-link{display:none}.brand{font-size:23px}.main{padding:18px 12px 40px}.page-head{align-items:flex-start;flex-direction:column;gap:10px}.metrics{grid-template-columns:1fr 1fr}.metric{min-height:96px}.status-grid,.quick-actions{grid-template-columns:1fr}.filters{grid-template-columns:1fr}.order-summary{grid-template-columns:1fr auto}.order-summary .order-customer,.order-summary .order-status{display:none}.coupon{grid-template-columns:1fr}.coupon-actions{justify-content:flex-start}}
 </style>
 </head>
 <body>
-<section id="loginView" class="login"><form id="loginForm" class="login-card"><h1>admin.</h1><p class="muted">secure storefront management</p><label>username<input id="username" autocomplete="username" required></label><label>password<input id="password" type="password" autocomplete="current-password" required></label><button class="btn dark" type="submit">sign in</button><p id="loginError" class="error"></p></form></section>
+<section id="loginView" class="login">
+  <div class="login-brand" aria-hidden="true">
+    <div class="login-logo">chewi</div>
+    <div class="login-message">
+      <div class="eyebrow" style="color:#b8c977">operations dashboard</div>
+      <h1>run the cookie side of the business.</h1>
+      <p>Orders, fulfillment, customer details, coupons and revenue in one private workspace.</p>
+    </div>
+    <div class="login-security"><span class="security-pill">server authenticated</span><span class="security-pill">secure session</span><span class="security-pill">private admin</span></div>
+  </div>
+  <div class="login-side">
+    <form id="loginForm" class="login-card">
+      <div class="login-card-head"><div class="eyebrow">chewi admin</div><h2>welcome back.</h2><p class="muted">Sign in with your admin credentials to continue.</p></div>
+      <label>username<input id="username" autocomplete="username" spellcheck="false" required></label>
+      <label>password<div class="password-wrap"><input id="password" type="password" autocomplete="current-password" required><button id="togglePassword" class="password-toggle" type="button" aria-label="show password">show</button></div></label>
+      <button id="loginBtn" class="btn dark login-submit" type="submit">sign in securely</button>
+      <p id="loginError" class="error" role="alert"></p>
+      <p class="login-help">Access is restricted to authorised Chewi administrators.</p>
+    </form>
+  </div>
+</section>
+
 <div id="appView" class="shell hidden">
-<header class="topbar"><div class="brand">crunchi admin</div><div class="top-actions"><a class="btn" href="/" target="_blank">view store</a><button id="refreshBtn" class="btn">refresh</button><button id="logoutBtn" class="btn dark">log out</button></div></header>
-<div class="layout"><aside class="side"><button class="tab active" data-view="dashboard">dashboard</button><button class="tab" data-view="orders">orders</button><button class="tab" data-view="coupons">coupons</button></aside><main class="main">
-<section id="dashboardView"><h2>dashboard</h2><p class="muted">live order and revenue overview.</p><div id="metrics" class="metrics"></div><div class="panel"><div class="panel-head"><h3>recent orders</h3></div><div id="recentOrders" class="orders"></div></div></section>
-<section id="ordersView" class="hidden"><div class="panel-head"><div><h2>orders</h2><p class="muted">search, review, update, refund and export orders.</p></div><a class="btn" href="/api/admin/orders.csv">export csv</a></div><div class="panel"><div class="filters"><input id="orderSearch" placeholder="order number, email or name"><select id="orderStatus"><option value="all">all statuses</option><option>pending_payment</option><option>paid</option><option>processing</option><option>fulfilled</option><option>cancelled</option><option>refunded</option></select><button id="searchOrdersBtn" class="btn">search</button></div></div><div id="ordersList" class="orders"></div></section>
-<section id="couponsView" class="hidden"><h2>coupons</h2><p class="muted">server-side coupon rules used by the storefront and checkout.</p><div class="coupon-grid"><div class="panel"><h3>create / update coupon</h3><form id="couponForm"><label>code<input id="couponCode" maxlength="32" required></label><label>type<select id="couponType"><option value="percent">percentage</option><option value="fixed">fixed euro amount</option></select></label><label>value<input id="couponValue" type="number" min="0.01" step="0.01" required></label><label>minimum subtotal (€)<input id="couponMin" type="number" min="0" step="0.01" value="0"></label><label>maximum uses (0 = unlimited)<input id="couponMax" type="number" min="0" step="1" value="0"></label><label>expiry (optional)<input id="couponExpiry" type="datetime-local"></label><button class="btn dark" type="submit">save coupon</button><p id="couponMessage" class="muted"></p></form></div><div class="panel"><h3>coupon library</h3><div id="couponList" class="coupon-list"></div></div></div></section>
-</main></div></div>
+  <header class="topbar">
+    <div class="brand-wrap"><div class="brand">chewi</div><span class="admin-badge">admin</span></div>
+    <div class="top-actions"><span id="lastUpdated" class="last-updated"></span><a class="btn subtle store-link" href="https://arcelus.eu" target="_blank" rel="noopener">view store</a><button id="refreshBtn" class="btn subtle" type="button">refresh</button><button id="logoutBtn" class="btn dark" type="button">log out</button></div>
+  </header>
+
+  <div class="layout">
+    <aside class="side">
+      <div class="side-section"><span class="side-label">workspace</span><button class="tab active" data-view="dashboard">dashboard <span class="side-dot"></span></button><button class="tab" data-view="orders">orders <span class="side-dot"></span></button><button class="tab" data-view="coupons">coupons <span class="side-dot"></span></button></div>
+      <div class="side-note"><b>Chewi operations</b>Payment is handled by Stripe. Use this dashboard for the day-to-day order workflow.</div>
+    </aside>
+
+    <main class="main">
+      <section id="dashboardView">
+        <div class="page-head"><div><div class="eyebrow">overview</div><h2>dashboard</h2><p class="muted">A live view of sales, payment state and fulfillment workload.</p></div><div class="page-head-actions"><button class="btn lime" type="button" data-go="orders">manage orders</button><button class="btn subtle" type="button" data-go="coupons">manage coupons</button></div></div>
+        <div id="metrics" class="metrics"></div>
+        <div class="dashboard-grid">
+          <div class="stack">
+            <div class="panel"><div class="panel-head"><div><h3>recent orders</h3><p class="muted">latest activity across checkout and fulfillment</p></div><button class="panel-link" type="button" data-go="orders">view all orders</button></div><div id="recentOrders" class="orders"></div></div>
+            <div class="panel"><div class="panel-head"><div><h3>fulfillment queue</h3><p class="muted">orders that still need operational attention</p></div></div><div id="fulfillmentQueue" class="orders"></div></div>
+          </div>
+          <div class="stack">
+            <div class="panel"><div class="panel-head"><div><h3>order status</h3><p class="muted">current order mix</p></div></div><div id="statusBreakdown" class="status-grid"></div></div>
+            <div class="panel"><div class="panel-head"><div><h3>business snapshot</h3><p class="muted">derived from current orders</p></div></div><div id="businessInsights" class="insight-list"></div></div>
+            <div class="panel"><div class="panel-head"><div><h3>quick actions</h3></div></div><div class="quick-actions"><button class="quick-action" type="button" data-go="orders"><b>process orders</b><span>Review paid orders and move them through fulfillment.</span></button><button class="quick-action" type="button" data-go="coupons"><b>create coupon</b><span>Add or update a server-validated discount code.</span></button><a class="quick-action" href="/api/admin/orders.csv"><b>export orders</b><span>Download the current order history as CSV.</span></a><a class="quick-action" href="https://arcelus.eu" target="_blank" rel="noopener"><b>open storefront</b><span>Check the live customer experience.</span></a></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="ordersView" class="hidden">
+        <div class="page-head"><div><div class="eyebrow">operations</div><h2>orders</h2><p class="muted">Search customers, review order details, update fulfillment and issue refunds.</p></div><div class="page-head-actions"><a class="btn subtle" href="/api/admin/orders.csv">export csv</a></div></div>
+        <div class="panel"><div class="filters"><input id="orderSearch" placeholder="order number, email or customer name" autocomplete="off"><select id="orderStatus"><option value="all">all statuses</option><option>pending_payment</option><option>paid</option><option>processing</option><option>fulfilled</option><option>cancelled</option><option>refunded</option></select><button id="searchOrdersBtn" class="btn dark" type="button">search orders</button></div></div>
+        <div id="ordersList" class="orders"></div>
+      </section>
+
+      <section id="couponsView" class="hidden">
+        <div class="page-head"><div><div class="eyebrow">promotions</div><h2>coupons</h2><p class="muted">Create and control server-side discount rules used by the Chewi storefront.</p></div></div>
+        <div class="coupon-grid">
+          <div class="panel"><div class="panel-head"><div><h3>create / update coupon</h3><p class="muted">using an existing code updates its rules</p></div></div><form id="couponForm"><label>code<input id="couponCode" maxlength="32" placeholder="WELCOME10" required></label><label>discount type<select id="couponType"><option value="percent">percentage</option><option value="fixed">fixed euro amount</option></select></label><label>discount value<input id="couponValue" type="number" min="0.01" step="0.01" required></label><p class="form-help">For percentage coupons enter 10 for 10%.</p><label>minimum subtotal (€)<input id="couponMin" type="number" min="0" step="0.01" value="0"></label><label>maximum uses<input id="couponMax" type="number" min="0" step="1" value="0"></label><p class="form-help">Set maximum uses to 0 for unlimited.</p><label>expiry (optional)<input id="couponExpiry" type="datetime-local"></label><button id="saveCouponBtn" class="btn dark" type="submit">save coupon</button><p id="couponMessage" class="muted"></p></form></div>
+          <div class="panel"><div class="panel-head"><div><h3>coupon library</h3><p id="couponSummary" class="muted">loading coupon rules…</p></div></div><div id="couponList" class="coupon-list"></div></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
 <script>
 let csrf='';
-const $=s=>document.querySelector(s); const money=c=>`€${(Number(c||0)/100).toFixed(2)}`; const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+let dashboardOrders=[];
+let allCoupons=[];
+let toastTimer;
+const $=s=>document.querySelector(s);
+const money=c=>`€${(Number(c||0)/100).toFixed(2)}`;
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const statusLabel=s=>String(s||'').replaceAll('_',' ');
+const formatDate=value=>{if(!value)return '—';const d=new Date(value.includes('T')?value:value.replace(' ','T')+'Z');return Number.isNaN(d.getTime())?value:d.toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'})};
+
+function toast(message){const el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2200)}
 async function api(url,opts={}){opts.headers={'content-type':'application/json',...(opts.headers||{})};if(csrf&&opts.method&&opts.method!=='GET')opts.headers['x-csrf-token']=csrf;const r=await fetch(url,opts);const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'request failed');return d}
+function setView(view){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.view===view));['dashboard','orders','coupons'].forEach(v=>$(`#${v}View`).classList.toggle('hidden',v!==view));window.scrollTo({top:0,behavior:'smooth'})}
+
 async function boot(){try{const me=await api('/api/admin/me');csrf=me.csrf;$('#loginView').classList.add('hidden');$('#appView').classList.remove('hidden');await refreshAll()}catch{$('#loginView').classList.remove('hidden');$('#appView').classList.add('hidden')}}
-$('#loginForm').addEventListener('submit',async e=>{e.preventDefault();$('#loginError').textContent='';try{await api('/api/admin/login',{method:'POST',body:JSON.stringify({username:$('#username').value,password:$('#password').value})});await boot()}catch(err){$('#loginError').textContent=err.message}});
+
+$('#togglePassword').addEventListener('click',()=>{const input=$('#password');const show=input.type==='password';input.type=show?'text':'password';$('#togglePassword').textContent=show?'hide':'show';$('#togglePassword').setAttribute('aria-label',show?'hide password':'show password')});
+$('#loginForm').addEventListener('submit',async e=>{e.preventDefault();const btn=$('#loginBtn');$('#loginError').textContent='';btn.disabled=true;btn.textContent='signing in…';try{await api('/api/admin/login',{method:'POST',body:JSON.stringify({username:$('#username').value.trim(),password:$('#password').value})});$('#password').value='';await boot()}catch(err){$('#loginError').textContent=err.message}finally{btn.disabled=false;btn.textContent='sign in securely'}});
 $('#logoutBtn').addEventListener('click',async()=>{try{await api('/api/admin/logout',{method:'POST',body:'{}'})}catch{}csrf='';location.reload()});
-document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['dashboard','orders','coupons'].forEach(v=>$(`#${v}View`).classList.toggle('hidden',v!==b.dataset.view))}));
-function orderHtml(o,compact=false){const items=o.items.map(i=>`${i.quantity} × ${esc(i.name)}`).join(', ');return `<article class="order"><div class="order-summary"><div><b>${esc(o.order_number)}</b><span class="muted">${esc(o.created_at)}</span></div><div>${esc(o.customer_name||'customer pending')}<div class="muted">${esc(o.customer_email||'email pending')}</div></div><div><span class="status">${esc(o.status)}</span></div><div><b>${money(o.total_cents)}</b><span class="muted">${o.coupon_code?`coupon ${esc(o.coupon_code)}`:'no coupon'}</span></div><button class="btn" data-toggle="${o.id}">details</button></div>${compact?'':`<div class="order-details hidden" id="order-${o.id}"><div class="items"><b>items</b>${o.items.map(i=>`<div class="row"><span>${i.quantity} × ${esc(i.name)}</span><span>${money(i.lineCents)}</span></div>`).join('')}<div class="row"><span>subtotal</span><b>${money(o.subtotal_cents)}</b></div><div class="row"><span>discount</span><b>-${money(o.discount_cents)}</b></div></div><label>internal notes<textarea data-notes="${o.id}">${esc(o.notes||'')}</textarea></label><div class="order-actions"><select data-status="${o.id}">${['pending_payment','paid','processing','fulfilled','cancelled','refunded'].map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join('')}</select><button class="btn dark" data-save="${o.id}">save changes</button>${o.stripe_payment_intent&&['paid','processing','fulfilled'].includes(o.status)?`<button class="btn danger" data-refund="${o.id}">refund payment</button>`:''}</div></div>`}</article>`}
-function wireOrders(root){root.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>document.querySelector(`#order-${b.dataset.toggle}`)?.classList.toggle('hidden'));root.querySelectorAll('[data-save]').forEach(b=>b.onclick=async()=>{const id=b.dataset.save;await api(`/api/admin/orders/${id}`,{method:'PATCH',body:JSON.stringify({status:document.querySelector(`[data-status="${id}"]`).value,notes:document.querySelector(`[data-notes="${id}"]`).value})});await refreshAll()});root.querySelectorAll('[data-refund]').forEach(b=>b.onclick=async()=>{if(!confirm('Refund this Stripe payment?'))return;await api(`/api/admin/orders/${b.dataset.refund}/refund`,{method:'POST',body:'{}'});await refreshAll()})}
-async function loadOrders(){const q=encodeURIComponent($('#orderSearch')?.value||'');const status=encodeURIComponent($('#orderStatus')?.value||'all');const d=await api(`/api/admin/orders?q=${q}&status=${status}`);$('#ordersList').innerHTML=d.orders.length?d.orders.map(o=>orderHtml(o)).join(''):'<div class="panel muted">no orders found.</div>';wireOrders($('#ordersList'));return d.orders}
-async function loadDashboard(){const m=await api('/api/admin/dashboard');$('#metrics').innerHTML=[['all orders',m.totalOrders],['paid',m.paidOrders],['pending',m.pendingOrders],['revenue',money(m.revenueCents)],['today',m.todayOrders],['active coupons',m.activeCoupons]].map(([a,b])=>`<div class="metric"><b>${b}</b><span>${a}</span></div>`).join('');const d=await api('/api/admin/orders');$('#recentOrders').innerHTML=d.orders.slice(0,6).map(o=>orderHtml(o,true)).join('')||'<div class="muted">no orders yet.</div>'}
-async function loadCoupons(){const d=await api('/api/admin/coupons');$('#couponList').innerHTML=d.coupons.map(c=>`<div class="coupon"><div><b>${esc(c.code)}</b><div class="muted">${c.type==='percent'?`${c.value}%`:`€${Number(c.value).toFixed(2)}`} off · min ${money(c.min_subtotal_cents)} · ${c.max_uses?`${c.uses}/${c.max_uses} uses`:`${c.uses} uses`} · ${c.active?'active':'disabled'}${c.expires_at?` · expires ${esc(c.expires_at)}`:''}</div></div><div><button class="btn" data-toggle-coupon="${c.id}" data-active="${c.active?1:0}">${c.active?'disable':'enable'}</button> <button class="btn danger" data-delete-coupon="${c.id}">delete</button></div></div>`).join('')||'<div class="muted">no coupons.</div>';document.querySelectorAll('[data-toggle-coupon]').forEach(b=>b.onclick=async()=>{await api(`/api/admin/coupons/${b.dataset.toggleCoupon}`,{method:'PATCH',body:JSON.stringify({active:b.dataset.active!=='1'})});await loadCoupons()});document.querySelectorAll('[data-delete-coupon]').forEach(b=>b.onclick=async()=>{if(!confirm('Delete this coupon?'))return;await api(`/api/admin/coupons/${b.dataset.deleteCoupon}`,{method:'DELETE',body:'{}'});await loadCoupons()})}
-$('#couponForm').addEventListener('submit',async e=>{e.preventDefault();$('#couponMessage').textContent='';try{await api('/api/admin/coupons',{method:'POST',body:JSON.stringify({code:$('#couponCode').value,type:$('#couponType').value,value:Number($('#couponValue').value),minSubtotal:Number($('#couponMin').value||0),maxUses:Number($('#couponMax').value||0),expiresAt:$('#couponExpiry').value||null})});$('#couponMessage').textContent='saved';e.target.reset();$('#couponMin').value=0;$('#couponMax').value=0;await loadCoupons()}catch(err){$('#couponMessage').textContent=err.message}});
-$('#searchOrdersBtn').addEventListener('click',loadOrders);$('#refreshBtn').addEventListener('click',refreshAll);async function refreshAll(){await Promise.all([loadDashboard(),loadOrders(),loadCoupons()])}boot();
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.go)));
+
+function orderHtml(o,compact=false){
+  const status=esc(o.status||'pending_payment');
+  const itemCount=(o.items||[]).reduce((sum,i)=>sum+Number(i.quantity||0),0);
+  return `<article class="order">
+    <div class="order-summary">
+      <div><b>${esc(o.order_number)}</b><span class="order-date">${esc(formatDate(o.created_at))}</span></div>
+      <div class="order-customer">${esc(o.customer_name||'customer pending')}<div class="muted">${esc(o.customer_email||'email pending')}</div></div>
+      <div class="order-status"><span class="status status-${status}">${esc(statusLabel(status))}</span></div>
+      <div class="order-total"><b>${money(o.total_cents)}</b><span class="muted">${itemCount} ${itemCount===1?'cookie':'cookies'}${o.coupon_code?` · ${esc(o.coupon_code)}`:''}</span></div>
+      ${compact?'<span class="muted">latest</span>':`<button class="btn subtle" type="button" data-toggle="${o.id}">details</button>`}
+    </div>
+    ${compact?'':`<div class="order-details hidden" id="order-${o.id}"><div class="details-grid"><div><div class="items"><b>order items</b>${(o.items||[]).map(i=>`<div class="row"><span>${Number(i.quantity)||0} × ${esc(i.name)}</span><span>${money(i.lineCents)}</span></div>`).join('')}<div class="totals"><div class="row"><span>subtotal</span><b>${money(o.subtotal_cents)}</b></div><div class="row"><span>discount</span><b>-${money(o.discount_cents)}</b></div><div class="row"><span>total</span><b>${money(o.total_cents)}</b></div></div></div></div><div class="customer-meta"><div class="meta-line"><b>customer</b><span>${esc(o.customer_name||'pending')}</span></div><div class="meta-line"><b>email</b><span>${esc(o.customer_email||'pending')}</span></div><div class="meta-line"><b>phone</b><span>${esc(o.customer_phone||'pending')}</span></div><div class="meta-line"><b>delivery</b><span>${esc(o.shipping_address||'pending')}</span></div><div class="meta-line"><b>delivery notes</b><span>${esc(o.delivery_notes||'none')}</span></div><div class="meta-line"><b>coupon</b><span>${esc(o.coupon_code||'none')}</span></div></div></div><label>internal notes<textarea data-notes="${o.id}" placeholder="Add fulfillment notes for this order…">${esc(o.notes||'')}</textarea></label><div class="order-actions"><select data-status="${o.id}">${['pending_payment','paid','processing','fulfilled','cancelled','refunded'].map(s=>`<option value="${s}" ${s===o.status?'selected':''}>${statusLabel(s)}</option>`).join('')}</select><button class="btn dark" type="button" data-save="${o.id}">save changes</button>${o.stripe_payment_intent&&['paid','processing','fulfilled'].includes(o.status)?`<button class="btn danger" type="button" data-refund="${o.id}">refund payment</button>`:''}</div></div>`}
+  </article>`;
+}
+
+function wireOrders(root){
+  root.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>document.querySelector(`#order-${b.dataset.toggle}`)?.classList.toggle('hidden'));
+  root.querySelectorAll('[data-save]').forEach(b=>b.onclick=async()=>{const id=b.dataset.save;b.disabled=true;try{await api(`/api/admin/orders/${id}`,{method:'PATCH',body:JSON.stringify({status:document.querySelector(`[data-status="${id}"]`).value,notes:document.querySelector(`[data-notes="${id}"]`).value})});toast('order updated');await refreshAll()}catch(err){toast(err.message)}finally{b.disabled=false}});
+  root.querySelectorAll('[data-refund]').forEach(b=>b.onclick=async()=>{if(!confirm('Refund this Stripe payment? This action sends a real refund request.'))return;b.disabled=true;try{await api(`/api/admin/orders/${b.dataset.refund}/refund`,{method:'POST',body:'{}'});toast('refund requested');await refreshAll()}catch(err){toast(err.message)}finally{b.disabled=false}});
+}
+
+async function loadOrders(){const q=encodeURIComponent($('#orderSearch')?.value||'');const status=encodeURIComponent($('#orderStatus')?.value||'all');const d=await api(`/api/admin/orders?q=${q}&status=${status}`);$('#ordersList').innerHTML=d.orders.length?d.orders.map(o=>orderHtml(o)).join(''):'<div class="empty-state">No orders match these filters.</div>';wireOrders($('#ordersList'));return d.orders}
+
+function renderDashboardDetails(orders,coupons){
+  const counts={pending_payment:0,paid:0,processing:0,fulfilled:0,cancelled:0,refunded:0};
+  orders.forEach(o=>{if(Object.hasOwn(counts,o.status))counts[o.status]++});
+  const max=Math.max(1,...Object.values(counts));
+  $('#statusBreakdown').innerHTML=['pending_payment','paid','processing','fulfilled','cancelled','refunded'].map(s=>`<div class="status-card"><b>${counts[s]}</b><span>${esc(statusLabel(s))}</span><div class="progress"><span style="width:${Math.round(counts[s]/max*100)}%"></span></div></div>`).join('');
+
+  const paidLike=orders.filter(o=>['paid','processing','fulfilled'].includes(o.status));
+  const avg=paidLike.length?Math.round(paidLike.reduce((sum,o)=>sum+Number(o.total_cents||0),0)/paidLike.length):0;
+  const cookies=paidLike.reduce((sum,o)=>sum+(o.items||[]).reduce((n,i)=>n+Number(i.quantity||0),0),0);
+  const couponOrders=paidLike.filter(o=>o.coupon_code).length;
+  const activeCoupons=coupons.filter(c=>c.active).length;
+  $('#businessInsights').innerHTML=[['average paid order',money(avg)],['cookies in paid orders',cookies],['paid orders using coupon',couponOrders],['active coupon rules',activeCoupons]].map(([label,value])=>`<div class="insight"><b>${label}</b><span>${value}</span></div>`).join('');
+
+  const queue=orders.filter(o=>['paid','processing'].includes(o.status)).slice(0,5);
+  $('#fulfillmentQueue').innerHTML=queue.length?queue.map(o=>orderHtml(o,true)).join(''):'<div class="empty-state">Nothing waiting for fulfillment.</div>';
+}
+
+async function loadDashboard(){
+  const [m,d,c]=await Promise.all([api('/api/admin/dashboard'),api('/api/admin/orders'),api('/api/admin/coupons')]);
+  dashboardOrders=d.orders;allCoupons=c.coupons;
+  const paidRate=m.totalOrders?Math.round((m.paidOrders/m.totalOrders)*100):0;
+  $('#metrics').innerHTML=[
+    ['revenue',money(m.revenueCents),'paid + processing + fulfilled'],
+    ['all orders',m.totalOrders,'all recorded checkouts'],
+    ['paid orders',m.paidOrders,`${paidRate}% of all orders`],
+    ['pending payment',m.pendingOrders,'awaiting successful payment'],
+    ['orders today',m.todayOrders,'created today'],
+    ['active coupons',m.activeCoupons,'currently enabled']
+  ].map(([a,b,c])=>`<div class="metric"><span>${a}</span><b>${b}</b><small>${c}</small></div>`).join('');
+  $('#recentOrders').innerHTML=d.orders.length?d.orders.slice(0,6).map(o=>orderHtml(o,true)).join(''):'<div class="empty-state">No orders yet.</div>';
+  renderDashboardDetails(d.orders,c.coupons);
+}
+
+async function loadCoupons(){
+  const d=await api('/api/admin/coupons');allCoupons=d.coupons;
+  const active=d.coupons.filter(c=>c.active).length;
+  const uses=d.coupons.reduce((sum,c)=>sum+Number(c.uses||0),0);
+  $('#couponSummary').textContent=`${active} active · ${d.coupons.length} total · ${uses} recorded uses`;
+  $('#couponList').innerHTML=d.coupons.map(c=>`<div class="coupon"><div><div class="coupon-code"><b>${esc(c.code)}</b><span class="coupon-state ${c.active?'':'off'}">${c.active?'active':'disabled'}</span></div><div class="muted">${c.type==='percent'?`${c.value}%`:`€${Number(c.value).toFixed(2)}`} off · minimum ${money(c.min_subtotal_cents)} · ${c.max_uses?`${c.uses}/${c.max_uses} uses`:`${c.uses} uses / unlimited`}${c.expires_at?` · expires ${esc(formatDate(c.expires_at))}`:''}</div></div><div class="coupon-actions"><button class="btn subtle" type="button" data-toggle-coupon="${c.id}" data-active="${c.active?1:0}">${c.active?'disable':'enable'}</button><button class="btn danger" type="button" data-delete-coupon="${c.id}">delete</button></div></div>`).join('')||'<div class="empty-state">No coupons created yet.</div>';
+  document.querySelectorAll('[data-toggle-coupon]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await api(`/api/admin/coupons/${b.dataset.toggleCoupon}`,{method:'PATCH',body:JSON.stringify({active:b.dataset.active!=='1'})});toast('coupon updated');await refreshAll()}catch(err){toast(err.message)}finally{b.disabled=false}});
+  document.querySelectorAll('[data-delete-coupon]').forEach(b=>b.onclick=async()=>{if(!confirm('Delete this coupon permanently?'))return;b.disabled=true;try{await api(`/api/admin/coupons/${b.dataset.deleteCoupon}`,{method:'DELETE',body:'{}'});toast('coupon deleted');await refreshAll()}catch(err){toast(err.message)}finally{b.disabled=false}})
+}
+
+$('#couponForm').addEventListener('submit',async e=>{e.preventDefault();const btn=$('#saveCouponBtn');$('#couponMessage').textContent='';btn.disabled=true;btn.textContent='saving…';try{await api('/api/admin/coupons',{method:'POST',body:JSON.stringify({code:$('#couponCode').value,type:$('#couponType').value,value:Number($('#couponValue').value),minSubtotal:Number($('#couponMin').value||0),maxUses:Number($('#couponMax').value||0),expiresAt:$('#couponExpiry').value||null})});$('#couponMessage').textContent='coupon saved successfully';$('#couponMessage').className='success';e.target.reset();$('#couponMin').value=0;$('#couponMax').value=0;toast('coupon saved');await refreshAll()}catch(err){$('#couponMessage').textContent=err.message;$('#couponMessage').className='error'}finally{btn.disabled=false;btn.textContent='save coupon'}});
+
+$('#searchOrdersBtn').addEventListener('click',loadOrders);
+$('#orderSearch').addEventListener('keydown',e=>{if(e.key==='Enter')loadOrders()});
+$('#orderStatus').addEventListener('change',loadOrders);
+$('#refreshBtn').addEventListener('click',refreshAll);
+async function refreshAll(){try{$('#refreshBtn').disabled=true;await Promise.all([loadDashboard(),loadOrders(),loadCoupons()]);$('#lastUpdated').textContent=`updated ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`}catch(err){toast(err.message)}finally{$('#refreshBtn').disabled=false}}
+boot();
 </script>
-</body></html>
+</body>
+</html>
