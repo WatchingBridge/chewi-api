@@ -71,30 +71,32 @@ textarea{min-height:96px;resize:vertical}.password-wrap{position:relative}.passw
 @media(max-width:900px){.login{grid-template-columns:1fr}.login-brand{display:none}.layout{grid-template-columns:1fr}.side{position:static;height:auto;display:flex;gap:6px;overflow:auto;padding:10px 14px;border-right:0;border-bottom:1px solid var(--line)}.side-section{display:flex;gap:6px;margin:0}.side-label,.side-note{display:none}.side button{width:auto;white-space:nowrap;margin:0}.coupon-grid{grid-template-columns:1fr}.details-grid{grid-template-columns:1fr}.topbar{position:static}.main{padding-top:22px}}
 @media(max-width:650px){.login-side{padding:16px}.login-card{padding:25px}.topbar{padding:11px 12px}.admin-badge,.last-updated,.top-actions .store-link{display:none}.brand{font-size:23px}.main{padding:18px 12px 40px}.page-head{align-items:flex-start;flex-direction:column;gap:10px}.metrics{grid-template-columns:1fr 1fr}.metric{min-height:96px}.status-grid,.quick-actions{grid-template-columns:1fr}.filters{grid-template-columns:1fr}.order-summary{grid-template-columns:1fr auto}.order-summary .order-customer,.order-summary .order-status{display:none}.coupon{grid-template-columns:1fr}.coupon-actions{justify-content:flex-start}}
 </style>
+
+<style>
+#loginView.login{min-height:100vh;display:grid;place-items:center;padding:24px;background:#f5efe5}
+#loginView .login-card{width:min(380px,100%);padding:32px;border:1px solid #d8ccbe;border-radius:18px;background:#fffaf2;box-shadow:0 18px 50px rgba(40,24,16,.08)}
+#loginView .login-brand,#loginView .login-copy,#loginView .login-side,#loginView .login-eyebrow,#loginView .security-note,#loginView .login-features,#loginView .login-meta{display:none!important}
+#loginView h1{margin:0 0 6px;font-size:30px;letter-spacing:-.05em}
+#loginView .login-subtitle{margin:0 0 24px;color:#75685f;font-size:13px}
+#loginView label{margin:14px 0}
+#loginView .btn[type="submit"]{width:100%;margin-top:8px;justify-content:center}
+#loginView .password-wrap{position:relative}
+#loginView .password-wrap input{padding-right:64px}
+#loginView .password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#75685f;font-size:12px;font-weight:800;cursor:pointer}
+</style>
+
 </head>
 <body>
 <section id="loginView" class="login">
-  <div class="login-brand" aria-hidden="true">
-    <div class="login-logo">chewi</div>
-    <div class="login-message">
-      <div class="eyebrow" style="color:#b8c977">operations dashboard</div>
-      <h1>run the cookie side of the business.</h1>
-      <p>Orders, fulfillment, customer details, coupons and revenue in one private workspace.</p>
-    </div>
-    <div class="login-security"><span class="security-pill">server authenticated</span><span class="security-pill">secure session</span><span class="security-pill">private admin</span></div>
-  </div>
-  <div class="login-side">
-    <form id="loginForm" class="login-card">
-      <div class="login-card-head"><div class="eyebrow">chewi admin</div><h2>welcome back.</h2><p class="muted">Sign in with your admin credentials to continue.</p></div>
-      <label>username<input id="username" autocomplete="username" spellcheck="false" required></label>
-      <label>password<div class="password-wrap"><input id="password" type="password" autocomplete="current-password" required><button id="togglePassword" class="password-toggle" type="button" aria-label="show password">show</button></div></label>
-      <button id="loginBtn" class="btn dark login-submit" type="submit">sign in securely</button>
-      <p id="loginError" class="error" role="alert"></p>
-      <p class="login-help">Access is restricted to authorised Chewi administrators.</p>
-    </form>
-  </div>
+<form id="loginForm" class="login-card">
+<h1>Chewi Admin</h1>
+<p class="login-subtitle">Sign in to manage your store.</p>
+<label>Username<input id="username" autocomplete="username" required autofocus></label>
+<label>Password<div class="password-wrap"><input id="password" type="password" autocomplete="current-password" required><button id="passwordToggle" class="password-toggle" type="button">Show</button></div></label>
+<button id="loginSubmit" class="btn dark" type="submit">Sign in</button>
+<p id="loginError" class="error" role="alert"></p>
+</form>
 </section>
-
 <div id="appView" class="shell hidden">
   <header class="topbar">
     <div class="brand-wrap"><div class="brand">chewi</div><span class="admin-badge">admin</span></div>
@@ -239,6 +241,9 @@ $('#orderStatus').addEventListener('change',loadOrders);
 $('#refreshBtn').addEventListener('click',refreshAll);
 async function refreshAll(){try{$('#refreshBtn').disabled=true;await Promise.all([loadDashboard(),loadOrders(),loadCoupons()]);$('#lastUpdated').textContent=`updated ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`}catch(err){toast(err.message)}finally{$('#refreshBtn').disabled=false}}
 boot();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{const t=document.getElementById('passwordToggle'),p=document.getElementById('password');if(t&&p)t.addEventListener('click',()=>{const s=p.type==='text';p.type=s?'password':'text';t.textContent=s?'Show':'Hide'})});
 </script>
 </body>
 </html>
