@@ -385,6 +385,7 @@ const ALLOWED_ORIGINS = new Set([
   FRONTEND_URL,
   "https://arcelus.eu",
   "https://www.arcelus.eu",
+  "https://chewi-api.onrender.com",
   "http://localhost:3000",
   "http://127.0.0.1:3000",
 ].filter(Boolean));
