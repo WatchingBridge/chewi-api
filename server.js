@@ -970,11 +970,96 @@ app.post("/api/admin/coupons", requireAdmin, requireCsrf, (req, res) => {
 });
 
 app.patch("/api/admin/coupons/:id", requireAdmin, requireCsrf, (req, res) => {
-  const id = Number(req.params.id);
-  const active = req.body.active ? 1 : 0;
-  const result = db.prepare("UPDATE coupons SET active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(active, id);
-  if (!result.changes) return res.status(404).json({ error: "Coupon not found." });
-  res.json({ ok: true });
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) {
+      return res.status(400).json({ error: "Invalid coupon id." });
+    }
+
+    const existing = db.prepare("SELECT * FROM coupons WHERE id = ?").get(id);
+    if (!existing) {
+      return res.status(404).json({ error: "Coupon not found." });
+    }
+
+    // Backwards compatible: callers can still send only { active: true/false }.
+    const type =
+      req.body.type === undefined ? existing.type : String(req.body.type || "");
+
+    const value =
+      req.body.value === undefined ? Number(existing.value) : Number(req.body.value);
+
+    const minSubtotalCents =
+      req.body.minSubtotal === undefined
+        ? Number(existing.min_subtotal_cents)
+        : moneyToCents(req.body.minSubtotal);
+
+    const maxUses =
+      req.body.maxUses === undefined
+        ? Number(existing.max_uses)
+        : Number(req.body.maxUses);
+
+    let expiresAt = existing.expires_at;
+    if (Object.prototype.hasOwnProperty.call(req.body, "expiresAt")) {
+      expiresAt = req.body.expiresAt
+        ? new Date(req.body.expiresAt).toISOString()
+        : null;
+    }
+
+    const active =
+      req.body.active === undefined
+        ? Number(existing.active)
+        : (req.body.active ? 1 : 0);
+
+    if (!new Set(["percent", "fixed"]).has(type)) {
+      return res.status(400).json({ error: "Invalid coupon type." });
+    }
+
+    if (!Number.isFinite(value) || value <= 0) {
+      return res.status(400).json({ error: "Coupon value must be positive." });
+    }
+
+    if (type === "percent" && value > 100) {
+      return res.status(400).json({ error: "Percentage cannot exceed 100%." });
+    }
+
+    if (minSubtotalCents === null) {
+      return res.status(400).json({ error: "Invalid minimum subtotal." });
+    }
+
+    if (!Number.isInteger(maxUses) || maxUses < 0) {
+      return res.status(400).json({ error: "Invalid usage limit." });
+    }
+
+    if (expiresAt && Number.isNaN(new Date(expiresAt).getTime())) {
+      return res.status(400).json({ error: "Invalid expiry date." });
+    }
+
+    db.prepare(`
+      UPDATE coupons SET
+        type = ?,
+        value = ?,
+        min_subtotal_cents = ?,
+        max_uses = ?,
+        active = ?,
+        expires_at = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(
+      type,
+      value,
+      minSubtotalCents,
+      maxUses,
+      active,
+      expiresAt,
+      id
+    );
+
+    const coupon = db.prepare("SELECT * FROM coupons WHERE id = ?").get(id);
+    res.json({ coupon: { ...coupon, active: Boolean(coupon.active) } });
+  } catch (error) {
+    console.error("Update coupon error:", error);
+    res.status(500).json({ error: "Could not update coupon." });
+  }
 });
 
 app.delete("/api/admin/coupons/:id", requireAdmin, requireCsrf, (req, res) => {
