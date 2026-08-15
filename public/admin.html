@@ -501,6 +501,28 @@ textarea{min-height:96px;resize:vertical}
 .health-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(85,107,55,.10)}
 @media(max-width:900px){.overview-strip{grid-template-columns:1fr 1fr}.view-grid{grid-template-columns:1fr}}
 
+
+/* website statistics */
+.analytics-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}
+.analytics-kpi{min-height:105px;padding:15px;border:1px solid var(--line);border-radius:15px;background:var(--surface);display:flex;flex-direction:column;justify-content:space-between}
+.analytics-kpi span{font-size:9px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.analytics-kpi b{font-size:27px;line-height:1;letter-spacing:-.045em}
+.analytics-kpi small{font-size:9.5px;color:#9a8c82}
+.analytics-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;align-items:start}
+.analytics-stack{display:grid;gap:16px}
+.analytics-chart{height:210px;display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;padding-top:12px}
+.analytics-day{height:100%;display:grid;grid-template-rows:1fr auto auto;gap:7px;align-items:end;text-align:center}
+.analytics-bar-wrap{height:150px;display:flex;align-items:flex-end;justify-content:center}
+.analytics-bar{width:min(34px,72%);min-height:3px;border-radius:8px 8px 3px 3px;background:var(--lime);border:1px solid #9eae62}
+.analytics-day b{font-size:10px}.analytics-day span{font-size:8px;color:var(--muted);text-transform:uppercase}
+.analytics-list{display:grid;gap:8px}
+.analytics-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #eee4d8}
+.analytics-row:last-child{border-bottom:0}.analytics-row b{font-size:11px}.analytics-row span{color:var(--muted);font-size:9.5px}
+.analytics-recent{display:grid;gap:7px}.analytics-event{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center;padding:10px;border:1px solid #e4d8cc;border-radius:11px;background:#fff}
+.analytics-event .event-name{font-size:10px;font-weight:850}.analytics-event .event-meta{font-size:8.5px;color:var(--muted)}
+@media(max-width:1050px){.analytics-kpis{grid-template-columns:1fr 1fr}.analytics-grid{grid-template-columns:1fr}}
+@media(max-width:620px){.analytics-kpis{grid-template-columns:1fr 1fr}.analytics-event{grid-template-columns:1fr}.analytics-chart{gap:4px}.analytics-bar{width:22px}}
+
 </style>
 </head>
 <body>
@@ -551,6 +573,7 @@ textarea{min-height:96px;resize:vertical}
       <button class="tab active" data-view="dashboard">dashboard <span id="dashboardCount" class="side-count">—</span></button>
       <button class="tab" data-view="orders">orders <span id="ordersCount" class="side-count">—</span></button>
       <button class="tab" data-view="coupons">coupons <span id="couponsCount" class="side-count">—</span></button>
+      <button class="tab" data-view="analytics">statistics <span id="analyticsCount" class="side-count">—</span></button>
     </aside>
 
     <main class="main">
@@ -641,6 +664,58 @@ textarea{min-height:96px;resize:vertical}
           <div class="panel">
             <div class="panel-head"><div><h3>store health</h3><div class="panel-note">Useful checks for day-to-day operations.</div></div></div>
             <div id="storeHealth" class="health-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="analyticsView" class="hidden">
+        <div class="page-head">
+          <div>
+            <h2>website statistics</h2>
+            <p class="muted">Real chewi.cc traffic and storefront activity collected by your own backend.</p>
+          </div>
+          <span id="analyticsUpdated" class="muted small">not refreshed yet</span>
+        </div>
+
+        <div class="analytics-kpis">
+          <div class="analytics-kpi"><span>visitors today</span><b id="statVisitorsToday">—</b><small>unique browsers today</small></div>
+          <div class="analytics-kpi"><span>views today</span><b id="statViewsToday">—</b><small>page loads today</small></div>
+          <div class="analytics-kpi"><span>7-day visitors</span><b id="statVisitors7d">—</b><small>unique visitors</small></div>
+          <div class="analytics-kpi"><span>30-day views</span><b id="statViews30d">—</b><small>page loads</small></div>
+        </div>
+
+        <div class="analytics-grid">
+          <div class="analytics-stack">
+            <div class="panel">
+              <div class="panel-head"><div><h3>7-day traffic</h3><div class="panel-note">Daily page views for chewi.cc.</div></div></div>
+              <div id="trafficChart" class="analytics-chart"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div><h3>storefront actions</h3><div class="panel-note">Release-page shopping activity from the last 30 days.</div></div></div>
+              <div id="eventStats" class="analytics-list"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div><h3>product interest</h3><div class="panel-note">Product-detail views and add-to-bag actions.</div></div></div>
+              <div id="productStats" class="analytics-list"></div>
+            </div>
+          </div>
+          <div class="analytics-stack">
+            <div class="panel">
+              <div class="panel-head"><div><h3>page versions</h3><div class="panel-note">Release vs pre-release vs maintenance traffic.</div></div></div>
+              <div id="modeStats" class="analytics-list"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div><h3>devices</h3><div class="panel-note">Visitor device mix over the last 30 days.</div></div></div>
+              <div id="deviceStats" class="analytics-list"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div><h3>traffic sources</h3><div class="panel-note">Top referrers over the last 30 days.</div></div></div>
+              <div id="referrerStats" class="analytics-list"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><div><h3>recent activity</h3><div class="panel-note">Latest anonymous site events.</div></div></div>
+              <div id="recentAnalytics" class="analytics-recent"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -738,7 +813,7 @@ async function api(url,opts={}){
 
 function setView(view){
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.view===view));
-  ['dashboard','orders','coupons'].forEach(v=>$(`#${v}View`).classList.toggle('hidden',v!==view));
+  ['dashboard','analytics','orders','coupons'].forEach(v=>$(`#${v}View`).classList.toggle('hidden',v!==view));
 }
 
 async function boot(){
@@ -1005,6 +1080,39 @@ async function loadDashboard(){
   $('#lastUpdated').textContent=`updated ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
 }
 
+
+function analyticsLabel(type){
+  return String(type||'').replaceAll('_',' ');
+}
+function renderAnalyticsRows(root,rows,labelKey,valueFn,metaFn){
+  root.innerHTML=rows.length?rows.map(row=>`<div class="analytics-row"><div><b>${esc(row[labelKey]||'unknown')}</b>${metaFn?`<span>${esc(metaFn(row))}</span>`:''}</div><b>${esc(valueFn(row))}</b></div>`).join(''):'<div class="empty">No data yet.</div>';
+}
+async function loadAnalytics(){
+  const d=await api('/api/admin/analytics');
+  const s=d.summary||{};
+  $('#statVisitorsToday').textContent=s.visitorsToday||0;
+  $('#statViewsToday').textContent=s.viewsToday||0;
+  $('#statVisitors7d').textContent=s.visitors7d||0;
+  $('#statViews30d').textContent=s.views30d||0;
+  $('#analyticsCount').textContent=s.visitorsToday||0;
+
+  const maxViews=Math.max(1,...(d.daily||[]).map(x=>Number(x.views||0)));
+  $('#trafficChart').innerHTML=(d.daily||[]).map(x=>{
+    const pct=Math.max(3,Math.round((Number(x.views||0)/maxViews)*100));
+    const day=new Date(`${x.day}T12:00:00`).toLocaleDateString([], {weekday:'short'});
+    return `<div class="analytics-day"><div class="analytics-bar-wrap"><div class="analytics-bar" style="height:${pct}%" title="${x.views} views"></div></div><b>${x.views}</b><span>${esc(day)}</span></div>`;
+  }).join('');
+
+  renderAnalyticsRows($('#modeStats'),d.modes||[],'mode',r=>`${r.views} views`,r=>`${r.visitors} visitors`);
+  renderAnalyticsRows($('#deviceStats'),d.devices||[],'device',r=>`${r.views} views`,r=>`${r.visitors} visitors`);
+  renderAnalyticsRows($('#referrerStats'),d.referrers||[],'referrer',r=>`${r.views} views`);
+  renderAnalyticsRows($('#eventStats'),(d.events||[]).filter(r=>r.eventType!=='page_view'),'eventType',r=>String(r.count),r=>analyticsLabel(r.eventType));
+  renderAnalyticsRows($('#productStats'),d.products||[],'name',r=>`${r.adds||0} adds`,r=>`${r.views||0} detail views`);
+
+  $('#recentAnalytics').innerHTML=(d.recent||[]).length?(d.recent||[]).map(r=>`<div class="analytics-event"><span class="status">${esc(analyticsLabel(r.eventType))}</span><div><div class="event-name">${esc(r.eventName||r.pagePath||'site visit')}</div><div class="event-meta">${esc(r.pageMode)} · ${esc(r.device)} · ${esc(r.referrer)}</div></div><span class="muted small">${esc(r.createdAt)}</span></div>`).join(''):'<div class="empty">No website activity tracked yet.</div>';
+  $('#analyticsUpdated').textContent=`updated ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
+}
+
 async function loadCoupons(){
   const d=await api('/api/admin/coupons');
   cachedCoupons=d.coupons;
@@ -1074,7 +1182,7 @@ $('#refreshBtn').addEventListener('click',refreshAll);
 async function refreshAll(){
   $('#refreshBtn').disabled=true;
   try{
-    await Promise.all([loadDashboard(),loadOrders(),loadCoupons()]);
+    await Promise.all([loadDashboard(),loadAnalytics(),loadOrders(),loadCoupons()]);
   }finally{
     $('#refreshBtn').disabled=false;
   }
