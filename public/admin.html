@@ -548,7 +548,7 @@ textarea{min-height:96px;resize:vertical}
       </div>
     </label>
 
-    <button id="loginSubmit" class="btn dark login-submit" type="submit">Sign in</button>
+    <button id="loginSubmit" class="btn dark login-submit" type="submit">sign in</button>
     <p id="loginError" class="error" role="alert"></p>
     <p class="login-foot">chewi admin access</p>
   </form>
@@ -833,7 +833,7 @@ $('#passwordToggle').addEventListener('click',()=>{
   const p=$('#password');
   const visible=p.type==='text';
   p.type=visible?'password':'text';
-  $('#passwordToggle').textContent=visible?'Show':'Hide';
+  $('#passwordToggle').textContent=visible?'show':'hide';
 });
 
 $('#loginForm').addEventListener('submit',async e=>{
@@ -841,7 +841,7 @@ $('#loginForm').addEventListener('submit',async e=>{
   const btn=$('#loginSubmit');
   $('#loginError').textContent='';
   btn.disabled=true;
-  btn.textContent='Signing in…';
+  btn.textContent='signing in…';
   try{
     await api('/api/admin/login',{
       method:'POST',
