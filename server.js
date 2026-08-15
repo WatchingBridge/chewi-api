@@ -16,6 +16,7 @@ const app = express();
 
 const PORT = process.env.PORT || 10000;
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://chewi.cc/";
+const FRONTEND_ORIGIN = new URL(FRONTEND_URL).origin;
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
 const SESSION_SECRET = process.env.SESSION_SECRET || "";
@@ -103,6 +104,23 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS analytics_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    visitor_hash TEXT NOT NULL,
+    session_hash TEXT NOT NULL,
+    event_type TEXT NOT NULL,
+    event_name TEXT,
+    page_mode TEXT NOT NULL,
+    page_path TEXT NOT NULL DEFAULT '/',
+    referrer TEXT NOT NULL DEFAULT 'direct',
+    device TEXT NOT NULL DEFAULT 'unknown',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_analytics_created_at ON analytics_events(created_at);
+  CREATE INDEX IF NOT EXISTS idx_analytics_visitor_hash ON analytics_events(visitor_hash);
+  CREATE INDEX IF NOT EXISTS idx_analytics_event_type ON analytics_events(event_type);
 `);
 
 // Seed two harmless test coupons if they do not exist.
@@ -264,6 +282,47 @@ function hydrateOrder(row) {
   return { ...row, items };
 }
 
+function hashAnalyticsId(value) {
+  const clean = String(value || "").slice(0, 128);
+  return crypto
+    .createHmac("sha256", SESSION_SECRET || "chewi-analytics-fallback")
+    .update(clean)
+    .digest("hex");
+}
+
+function cleanAnalyticsText(value, max = 120) {
+  return String(value || "")
+    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .trim()
+    .slice(0, max);
+}
+
+const ANALYTICS_PAGE_MODES = new Set(["release", "prerelease", "maintenance"]);
+const ANALYTICS_EVENT_TYPES = new Set([
+  "page_view",
+  "shop_view",
+  "product_view",
+  "add_to_bag",
+  "cart_open",
+  "checkout_start",
+]);
+
+const analyticsRate = new Map();
+function analyticsRateLimit(req, res, next) {
+  const key = req.ip || "unknown";
+  const now = Date.now();
+  const minute = 60 * 1000;
+  const current = analyticsRate.get(key) || { count: 0, resetAt: now + minute };
+  if (now > current.resetAt) {
+    current.count = 0;
+    current.resetAt = now + minute;
+  }
+  if (current.count >= 180) return res.status(429).json({ error: "Too many analytics events." });
+  current.count += 1;
+  analyticsRate.set(key, current);
+  next();
+}
+
 async function buildValidatedItems(items) {
   if (!Array.isArray(items) || items.length === 0) {
     throw new Error("Your bag is empty.");
@@ -382,9 +441,9 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async
 /* -------------------- NORMAL MIDDLEWARE -------------------- */
 
 const ALLOWED_ORIGINS = new Set([
-  FRONTEND_URL,
-  "https://arcelus.eu",
-  "https://www.arcelus.eu",
+  FRONTEND_ORIGIN,
+  "https://chewi.cc",
+  "https://www.chewi.cc",
   "https://chewi-api.onrender.com",
   "http://localhost:3000",
   "http://127.0.0.1:3000",
@@ -422,7 +481,7 @@ app.use(express.json({ limit: "50kb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (_req, res) => {
-  res.json({ ok: true, service: "crunchi-api" });
+  res.json({ ok: true, service: "chewi-api" });
 });
 
 app.get("/health", (_req, res) => {
@@ -524,6 +583,45 @@ app.post("/api/coupons/validate", (req, res) => {
   } catch (error) {
     console.error("Validate coupon error:", error);
     res.status(500).json({ valid: false, message: "coupon validation failed" });
+  }
+});
+
+/* -------------------- WEBSITE ANALYTICS -------------------- */
+
+app.post("/api/analytics/event", analyticsRateLimit, (req, res) => {
+  try {
+    const visitorId = cleanAnalyticsText(req.body.visitorId, 128);
+    const sessionId = cleanAnalyticsText(req.body.sessionId, 128);
+    const eventType = cleanAnalyticsText(req.body.eventType, 40);
+    const eventName = cleanAnalyticsText(req.body.eventName, 80) || null;
+    const pageMode = cleanAnalyticsText(req.body.pageMode, 24);
+    const pagePath = cleanAnalyticsText(req.body.pagePath || "/", 160) || "/";
+    const referrer = cleanAnalyticsText(req.body.referrer || "direct", 120) || "direct";
+    const device = cleanAnalyticsText(req.body.device || "unknown", 24) || "unknown";
+
+    if (!visitorId || !sessionId) return res.status(400).json({ error: "Missing analytics identifier." });
+    if (!ANALYTICS_EVENT_TYPES.has(eventType)) return res.status(400).json({ error: "Invalid analytics event." });
+    if (!ANALYTICS_PAGE_MODES.has(pageMode)) return res.status(400).json({ error: "Invalid page mode." });
+
+    db.prepare(`
+      INSERT INTO analytics_events
+      (visitor_hash,session_hash,event_type,event_name,page_mode,page_path,referrer,device)
+      VALUES (?,?,?,?,?,?,?,?)
+    `).run(
+      hashAnalyticsId(visitorId),
+      hashAnalyticsId(sessionId),
+      eventType,
+      eventName,
+      pageMode,
+      pagePath,
+      referrer,
+      device
+    );
+
+    res.status(204).end();
+  } catch (error) {
+    console.error("Analytics event error:", error);
+    res.status(500).json({ error: "Could not record analytics event." });
   }
 });
 
@@ -672,6 +770,91 @@ app.get("/api/admin/dashboard", requireAdmin, (req, res) => {
   const todayOrders = db.prepare("SELECT COUNT(*) AS n FROM orders WHERE date(created_at) = date('now')").get().n;
   const activeCoupons = db.prepare("SELECT COUNT(*) AS n FROM coupons WHERE active = 1").get().n;
   res.json({ totalOrders, paidOrders, pendingOrders, revenueCents, todayOrders, activeCoupons });
+});
+
+app.get("/api/admin/analytics", requireAdmin, (_req, res) => {
+  try {
+    const summary = db.prepare(`
+      SELECT
+        COUNT(CASE WHEN event_type = 'page_view' AND date(created_at) = date('now') THEN 1 END) AS viewsToday,
+        COUNT(DISTINCT CASE WHEN event_type = 'page_view' AND date(created_at) = date('now') THEN visitor_hash END) AS visitorsToday,
+        COUNT(CASE WHEN event_type = 'page_view' AND created_at >= datetime('now','-7 days') THEN 1 END) AS views7d,
+        COUNT(DISTINCT CASE WHEN event_type = 'page_view' AND created_at >= datetime('now','-7 days') THEN visitor_hash END) AS visitors7d,
+        COUNT(CASE WHEN event_type = 'page_view' AND created_at >= datetime('now','-30 days') THEN 1 END) AS views30d,
+        COUNT(DISTINCT CASE WHEN event_type = 'page_view' AND created_at >= datetime('now','-30 days') THEN visitor_hash END) AS visitors30d,
+        COUNT(DISTINCT CASE WHEN event_type = 'page_view' THEN visitor_hash END) AS visitorsAll
+      FROM analytics_events
+    `).get();
+
+    const daily = db.prepare(`
+      WITH RECURSIVE days(day) AS (
+        SELECT date('now','-6 days')
+        UNION ALL
+        SELECT date(day,'+1 day') FROM days WHERE day < date('now')
+      )
+      SELECT days.day,
+        COUNT(a.id) AS views,
+        COUNT(DISTINCT a.visitor_hash) AS visitors
+      FROM days
+      LEFT JOIN analytics_events a
+        ON date(a.created_at) = days.day AND a.event_type = 'page_view'
+      GROUP BY days.day
+      ORDER BY days.day
+    `).all();
+
+    const modes = db.prepare(`
+      SELECT page_mode AS mode, COUNT(*) AS views, COUNT(DISTINCT visitor_hash) AS visitors
+      FROM analytics_events
+      WHERE event_type = 'page_view' AND created_at >= datetime('now','-30 days')
+      GROUP BY page_mode ORDER BY views DESC
+    `).all();
+
+    const devices = db.prepare(`
+      SELECT device, COUNT(*) AS views, COUNT(DISTINCT visitor_hash) AS visitors
+      FROM analytics_events
+      WHERE event_type = 'page_view' AND created_at >= datetime('now','-30 days')
+      GROUP BY device ORDER BY views DESC
+    `).all();
+
+    const referrers = db.prepare(`
+      SELECT referrer, COUNT(*) AS views
+      FROM analytics_events
+      WHERE event_type = 'page_view' AND created_at >= datetime('now','-30 days')
+      GROUP BY referrer ORDER BY views DESC LIMIT 8
+    `).all();
+
+    const events = db.prepare(`
+      SELECT event_type AS eventType, COUNT(*) AS count
+      FROM analytics_events
+      WHERE created_at >= datetime('now','-30 days')
+      GROUP BY event_type ORDER BY count DESC
+    `).all();
+
+    const products = db.prepare(`
+      SELECT event_name AS name,
+        SUM(CASE WHEN event_type = 'product_view' THEN 1 ELSE 0 END) AS views,
+        SUM(CASE WHEN event_type = 'add_to_bag' THEN 1 ELSE 0 END) AS adds
+      FROM analytics_events
+      WHERE event_name IS NOT NULL
+        AND event_type IN ('product_view','add_to_bag')
+        AND created_at >= datetime('now','-30 days')
+      GROUP BY event_name
+      ORDER BY views DESC, adds DESC
+      LIMIT 8
+    `).all();
+
+    const recent = db.prepare(`
+      SELECT event_type AS eventType,event_name AS eventName,page_mode AS pageMode,
+             page_path AS pagePath,referrer,device,created_at AS createdAt
+      FROM analytics_events
+      ORDER BY id DESC LIMIT 20
+    `).all();
+
+    res.json({ summary, daily, modes, devices, referrers, events, products, recent });
+  } catch (error) {
+    console.error("Admin analytics error:", error);
+    res.status(500).json({ error: "Could not load website analytics." });
+  }
 });
 
 app.get("/api/admin/orders", requireAdmin, (req, res) => {
