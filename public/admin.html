@@ -523,6 +523,24 @@ textarea{min-height:96px;resize:vertical}
 @media(max-width:1050px){.analytics-kpis{grid-template-columns:1fr 1fr}.analytics-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.analytics-kpis{grid-template-columns:1fr 1fr}.analytics-event{grid-template-columns:1fr}.analytics-chart{gap:4px}.analytics-bar{width:22px}}
 
+
+/* coupon editing */
+.coupon-edit-banner{
+  margin:0 0 13px;
+  padding:11px 12px;
+  border:1px solid #cbd5a4;
+  border-radius:11px;
+  background:#f1f5dc;
+  color:#59623a;
+  font-size:10px;
+  line-height:1.5;
+}
+.coupon-edit-banner b{color:#37401f}
+.coupon-form-actions{display:flex;gap:8px;flex-wrap:wrap}
+.coupon-form-actions .btn{flex:1}
+.coupon-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+.coupon.editing{border-color:#aebd72;box-shadow:0 0 0 3px rgba(184,201,119,.13)}
+
 </style>
 </head>
 <body>
@@ -759,6 +777,9 @@ textarea{min-height:96px;resize:vertical}
         <div class="coupon-grid">
           <div class="panel">
             <h3>create / update coupon</h3>
+            <div id="couponEditBanner" class="coupon-edit-banner hidden">
+              editing <b id="couponEditName"></b> — update the fields below, then save changes.
+            </div>
             <form id="couponForm">
               <label>code<input id="couponCode" maxlength="32" required></label>
               <label>type
@@ -771,7 +792,10 @@ textarea{min-height:96px;resize:vertical}
               <label>minimum subtotal (€)<input id="couponMin" type="number" min="0" step="0.01" value="0"></label>
               <label>maximum uses (0 = unlimited)<input id="couponMax" type="number" min="0" step="1" value="0"></label>
               <label>expiry (optional)<input id="couponExpiry" type="datetime-local"></label>
-              <button class="btn dark" type="submit">save coupon</button>
+              <div class="coupon-form-actions">
+                <button id="couponSaveBtn" class="btn dark" type="submit">save coupon</button>
+                <button id="couponCancelBtn" class="btn hidden" type="button">cancel edit</button>
+              </div>
               <p id="couponMessage" class="muted small"></p>
             </form>
           </div>
@@ -795,6 +819,7 @@ textarea{min-height:96px;resize:vertical}
 let csrf='';
 let cachedOrders=[];
 let cachedCoupons=[];
+let editingCouponId=null;
 
 const $=s=>document.querySelector(s);
 const money=c=>`€${(Number(c||0)/100).toFixed(2)}`;
@@ -1113,12 +1138,64 @@ async function loadAnalytics(){
   $('#analyticsUpdated').textContent=`updated ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
 }
 
+
+function couponDateForInput(value){
+  if(!value) return '';
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime())) return '';
+  const local=new Date(d.getTime()-d.getTimezoneOffset()*60000);
+  return local.toISOString().slice(0,16);
+}
+
+function beginCouponEdit(coupon){
+  if(!coupon) return;
+  editingCouponId=Number(coupon.id);
+
+  $('#couponCode').value=coupon.code||'';
+  $('#couponCode').disabled=true;
+  $('#couponType').value=coupon.type||'percent';
+  $('#couponValue').value=Number(coupon.value||0);
+  $('#couponMin').value=(Number(coupon.min_subtotal_cents||0)/100).toFixed(2);
+  $('#couponMax').value=Number(coupon.max_uses||0);
+  $('#couponExpiry').value=couponDateForInput(coupon.expires_at);
+
+  $('#couponEditName').textContent=coupon.code||'coupon';
+  $('#couponEditBanner').classList.remove('hidden');
+  $('#couponCancelBtn').classList.remove('hidden');
+  $('#couponSaveBtn').textContent='save changes';
+  $('#couponMessage').textContent='';
+
+  loadCoupons().catch(()=>{});
+  $('#couponForm').scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>$('#couponValue').focus(),150);
+}
+
+function endCouponEdit(reset=true){
+  editingCouponId=null;
+  $('#couponCode').disabled=false;
+  $('#couponEditBanner').classList.add('hidden');
+  $('#couponCancelBtn').classList.add('hidden');
+  $('#couponSaveBtn').textContent='save coupon';
+
+  if(reset){
+    $('#couponForm').reset();
+    $('#couponMin').value=0;
+    $('#couponMax').value=0;
+  }
+}
+
+$('#couponCancelBtn').addEventListener('click',()=>{
+  endCouponEdit(true);
+  $('#couponMessage').textContent='edit cancelled.';
+  loadCoupons().catch(()=>{});
+});
+
 async function loadCoupons(){
   const d=await api('/api/admin/coupons');
   cachedCoupons=d.coupons;
   $('#couponsCount').textContent=d.coupons.filter(c=>c.active).length;
   $('#couponList').innerHTML=d.coupons.length?d.coupons.map(c=>`
-    <div class="coupon">
+    <div class="coupon ${Number(c.id)===Number(editingCouponId)?'editing':''}">
       <div>
         <b>${esc(c.code)}</b>
         <div class="muted small">
@@ -1129,11 +1206,17 @@ async function loadCoupons(){
           ${c.expires_at?` · expires ${esc(c.expires_at)}`:''}
         </div>
       </div>
-      <div>
+      <div class="coupon-actions">
+        <button class="btn" data-edit-coupon="${c.id}">edit</button>
         <button class="btn" data-toggle-coupon="${c.id}" data-active="${c.active?1:0}">${c.active?'disable':'enable'}</button>
         <button class="btn danger" data-delete-coupon="${c.id}">delete</button>
       </div>
     </div>`).join(''):'<div class="empty">No coupons yet.</div>';
+
+  document.querySelectorAll('[data-edit-coupon]').forEach(b=>b.onclick=()=>{
+    const coupon=cachedCoupons.find(c=>Number(c.id)===Number(b.dataset.editCoupon));
+    beginCouponEdit(coupon);
+  });
 
   document.querySelectorAll('[data-toggle-coupon]').forEach(b=>b.onclick=async()=>{
     await api(`/api/admin/coupons/${b.dataset.toggleCoupon}`,{
@@ -1153,25 +1236,47 @@ async function loadCoupons(){
 $('#couponForm').addEventListener('submit',async e=>{
   e.preventDefault();
   $('#couponMessage').textContent='';
+
+  const saveBtn=$('#couponSaveBtn');
+  saveBtn.disabled=true;
+
+  const payload={
+    type:$('#couponType').value,
+    value:Number($('#couponValue').value),
+    minSubtotal:Number($('#couponMin').value||0),
+    maxUses:Number($('#couponMax').value||0),
+    expiresAt:$('#couponExpiry').value||null
+  };
+
   try{
-    await api('/api/admin/coupons',{
-      method:'POST',
-      body:JSON.stringify({
-        code:$('#couponCode').value,
-        type:$('#couponType').value,
-        value:Number($('#couponValue').value),
-        minSubtotal:Number($('#couponMin').value||0),
-        maxUses:Number($('#couponMax').value||0),
-        expiresAt:$('#couponExpiry').value||null
-      })
-    });
-    $('#couponMessage').textContent='Coupon saved.';
-    e.target.reset();
-    $('#couponMin').value=0;
-    $('#couponMax').value=0;
+    if(editingCouponId){
+      await api(`/api/admin/coupons/${editingCouponId}`,{
+        method:'PATCH',
+        body:JSON.stringify(payload)
+      });
+
+      $('#couponMessage').textContent='coupon updated.';
+      endCouponEdit(true);
+    }else{
+      await api('/api/admin/coupons',{
+        method:'POST',
+        body:JSON.stringify({
+          code:$('#couponCode').value,
+          ...payload
+        })
+      });
+
+      $('#couponMessage').textContent='coupon saved.';
+      e.target.reset();
+      $('#couponMin').value=0;
+      $('#couponMax').value=0;
+    }
+
     await refreshAll();
   }catch(err){
     $('#couponMessage').textContent=err.message;
+  }finally{
+    saveBtn.disabled=false;
   }
 });
 
