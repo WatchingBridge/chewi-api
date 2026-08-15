@@ -484,6 +484,23 @@ textarea{min-height:96px;resize:vertical}
   .quick-actions{grid-template-columns:1fr}
   .login-card{padding:26px 20px}
 }
+
+.overview-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.overview-card{padding:14px 15px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#fffaf2,#fbf5ed)}
+.overview-card b{display:block;font-size:18px;letter-spacing:-.03em;margin-bottom:3px}
+.overview-card span{color:var(--muted);font-size:10px}
+.view-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mini-list{display:grid;gap:9px}
+.mini-item{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:11px 12px;border:1px solid #e4d8cc;border-radius:11px;background:#fff}
+.mini-item b{display:block;font-size:12px}
+.mini-item span{display:block;color:var(--muted);font-size:10px}
+.health-list{display:grid;gap:8px}
+.health-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #eee4d8}
+.health-row:last-child{border-bottom:0}
+.health-label{display:flex;align-items:center;gap:9px}
+.health-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(85,107,55,.10)}
+@media(max-width:900px){.overview-strip{grid-template-columns:1fr 1fr}.view-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -541,12 +558,18 @@ textarea{min-height:96px;resize:vertical}
         <div class="page-head">
           <div>
             <h2>dashboard</h2>
-            <p class="muted">Store performance and what needs attention.</p>
+            <p class="muted">Store performance, fulfilment and customer activity at a glance.</p>
           </div>
           <span id="lastUpdated" class="muted small">not refreshed yet</span>
         </div>
 
         <div id="metrics" class="metrics"></div>
+        <div class="overview-strip" id="overviewStrip">
+          <div class="overview-card"><b id="overviewConversion">—</b><span>paid conversion</span></div>
+          <div class="overview-card"><b id="overviewCouponUse">—</b><span>orders using coupons</span></div>
+          <div class="overview-card"><b id="overviewOpenOrders">—</b><span>open fulfilment queue</span></div>
+          <div class="overview-card"><b id="overviewActiveCoupons">—</b><span>active coupons</span></div>
+        </div>
 
         <div class="dashboard-grid">
           <div class="stack">
@@ -554,7 +577,7 @@ textarea{min-height:96px;resize:vertical}
               <div class="panel-head">
                 <div>
                   <h3>recent orders</h3>
-                  <div class="panel-note">Latest checkout activity.</div>
+                  <div class="panel-note">Newest orders across the store.</div>
                 </div>
                 <button class="btn" type="button" data-go-view="orders">view all</button>
               </div>
@@ -565,7 +588,7 @@ textarea{min-height:96px;resize:vertical}
               <div class="panel-head">
                 <div>
                   <h3>order status</h3>
-                  <div class="panel-note">Current order pipeline.</div>
+                  <div class="panel-note">Where orders currently sit in fulfilment.</div>
                 </div>
               </div>
               <div id="statusBreakdown" class="stat-list"></div>
@@ -604,9 +627,20 @@ textarea{min-height:96px;resize:vertical}
                 <button class="btn dark" type="button" data-go-view="orders">manage orders</button>
                 <button class="btn lime" type="button" data-go-view="coupons">new coupon</button>
                 <a class="btn" href="/api/admin/orders.csv">export csv</a>
-                <a class="btn" href="https://arcelus.eu" target="_blank" rel="noopener">open store</a>
+                <a class="btn" href="https://chewi.cc/" target="_blank" rel="noopener">open storefront</a>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="view-grid" style="margin-top:16px">
+          <div class="panel">
+            <div class="panel-head"><div><h3>customer activity</h3><div class="panel-note">A quick read on who is buying.</div></div></div>
+            <div id="customerActivity" class="mini-list"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h3>store health</h3><div class="panel-note">Useful checks for day-to-day operations.</div></div></div>
+            <div id="storeHealth" class="health-list"></div>
           </div>
         </div>
       </section>
@@ -895,12 +929,45 @@ function renderAttention(orders){
     </div>`;
 }
 
+
+function renderCustomerActivity(orders){
+  const paidLike=orders.filter(o=>['paid','processing','fulfilled'].includes(o.status));
+  const emails=paidLike.map(o=>String(o.customer_email||'').trim().toLowerCase()).filter(Boolean);
+  const unique=new Set(emails);
+  const repeatCount=Math.max(0,emails.length-unique.size);
+  const promoOrders=paidLike.filter(o=>o.coupon_code).length;
+  const phoneProvided=paidLike.filter(o=>o.customer_phone).length;
+  $('#customerActivity').innerHTML=`
+    <div class="mini-item"><div><b>${unique.size} unique customers</b><span>based on paid-order email addresses</span></div><span class="status paid">customers</span></div>
+    <div class="mini-item"><div><b>${repeatCount} repeat orders</b><span>extra orders from returning email addresses</span></div><span class="status processing">repeat</span></div>
+    <div class="mini-item"><div><b>${promoOrders} coupon orders</b><span>paid orders using a discount code</span></div><span class="status fulfilled">promo</span></div>
+    <div class="mini-item"><div><b>${phoneProvided} with phone</b><span>paid orders with a phone number</span></div><span class="status">contact</span></div>`;
+}
+
+function renderStoreHealth(orders,coupons){
+  const openOrders=orders.filter(o=>['paid','processing'].includes(o.status)).length;
+  const pending=orders.filter(o=>o.status==='pending_payment').length;
+  const activeCoupons=coupons.filter(c=>c.active).length;
+  const expiredCoupons=coupons.filter(c=>c.expires_at && new Date(c.expires_at).getTime()<Date.now()).length;
+  const rows=[
+    ['storefront','chewi.cc'],
+    ['fulfilment queue',`${openOrders} open`],
+    ['pending payments',`${pending}`],
+    ['active coupons',`${activeCoupons}`],
+    ['expired coupon records',`${expiredCoupons}`]
+  ];
+  $('#storeHealth').innerHTML=rows.map(([label,value])=>`
+    <div class="health-row"><div class="health-label"><span class="health-dot"></span><span>${esc(label)}</span></div><b>${esc(value)}</b></div>`).join('');
+}
+
 async function loadDashboard(){
-  const [m,d]=await Promise.all([
+  const [m,d,c]=await Promise.all([
     api('/api/admin/dashboard'),
-    api('/api/admin/orders')
+    api('/api/admin/orders'),
+    api('/api/admin/coupons')
   ]);
   const orders=d.orders||[];
+  const coupons=c.coupons||[];
   const activeRevenueOrders=orders.filter(o=>['paid','processing','fulfilled'].includes(o.status));
   const avgOrder=activeRevenueOrders.length?Math.round(activeRevenueOrders.reduce((s,o)=>s+Number(o.total_cents||0),0)/activeRevenueOrders.length):0;
   const cookieUnits=orders.filter(o=>!['cancelled','refunded'].includes(o.status)).reduce((sum,o)=>sum+(o.items||[]).reduce((s,i)=>s+Number(i.quantity||0),0),0);
@@ -916,9 +983,24 @@ async function loadDashboard(){
   ].map(([a,b,c])=>`<div class="metric"><span>${a}</span><b>${b}</b><small>${c}</small></div>`).join('');
 
   $('#recentOrders').innerHTML=orders.slice(0,6).map(o=>orderHtml(o,true)).join('')||'<div class="empty">No orders yet.</div>';
+
+  const completed=orders.filter(o=>['paid','processing','fulfilled'].includes(o.status)).length;
+  const conversion=orders.length?Math.round((completed/orders.length)*100):0;
+  const overviewCouponOrders=orders.filter(o=>o.coupon_code).length;
+  const couponPct=orders.length?Math.round((overviewCouponOrders/orders.length)*100):0;
+  const openOrders=orders.filter(o=>['paid','processing'].includes(o.status)).length;
+  const activeCoupons=coupons.filter(c=>c.active).length;
+
+  $('#overviewConversion').textContent=`${conversion}%`;
+  $('#overviewCouponUse').textContent=`${couponPct}%`;
+  $('#overviewOpenOrders').textContent=openOrders;
+  $('#overviewActiveCoupons').textContent=activeCoupons;
+
   renderStatusBreakdown(orders);
   renderBestSellers(orders);
   renderAttention(orders);
+  renderCustomerActivity(orders);
+  renderStoreHealth(orders,coupons);
   $('#dashboardCount').textContent=m.todayOrders;
   $('#lastUpdated').textContent=`updated ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
 }
