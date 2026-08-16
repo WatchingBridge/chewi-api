@@ -123,15 +123,6 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_analytics_event_type ON analytics_events(event_type);
 `);
 
-// Seed two harmless test coupons if they do not exist.
-const seedCoupon = db.prepare(`
-  INSERT OR IGNORE INTO coupons
-  (code, type, value, min_subtotal_cents, max_uses, active)
-  VALUES (?, ?, ?, ?, ?, 1)
-`);
-seedCoupon.run("WELCOME10", "percent", 10, 0, 0);
-seedCoupon.run("COOKIE5", "fixed", 5, 2000, 0);
-
 /* -------------------- HELPERS -------------------- */
 
 function normalizeCode(value) {
